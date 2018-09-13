@@ -3,9 +3,9 @@ summary: Creates Xcode and Android Studio projects for your app. Use this if you
 description: |-
   Using the The Expo Development CLI to create Xcode and Android Studio projects for your app.
   **EXPO DEVELOPMENT CLI** https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli
-website: https://github.com/bitrise-steplib/expo-detach
-source_code_url: https://github.com/bitrise-steplib/expo-detach
-support_url: https://github.com/bitrise-steplib/expo-detach/issues
+website: https://github.com/bitrise-steplib/steps-expo-detach
+source_code_url: https://github.com/bitrise-steplib/steps-expo-detach
+support_url: https://github.com/bitrise-steplib/steps-expo-detach/issues
 
 type_tags:
   - utility
@@ -20,7 +20,7 @@ deps:
 
 toolkit:
   go:
-    package_name: github.com/bitrise-steplib/expo-detach
+    package_name: github.com/bitrise-steplib/steps-expo-detach
 
 
 inputs:
@@ -65,3 +65,13 @@ inputs:
       description: |-
         Your password for your for `https://expo.io/` .
       is_sensitive: true
+  - logout: "false"
+    opts:
+      title: Logout from your Expo account
+      summary: Should we log you out from your Expo account at the end of the step?
+      description: |-
+        If you provided account credentials to the step, you can ask it to log you out at the end of the eject process.
+      is_required: true
+      value_options:
+        - "true"
+        - "false"
