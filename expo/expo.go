@@ -38,9 +38,11 @@ func New(version string, method EjectMethod) *Expo {
 
 // InstallExpoCLI runs the install npm command to install the expo-cli
 func (e *Expo) InstallExpoCLI() error {
-	args := []string{"install", "-g", "expo-cli"}
+	args := []string{"install", "-g"}
 	if e.Version != "latest" {
-		args = append(args, e.Version)
+		args = append(args, "expo-cli@"+e.Version)
+	} else {
+		args = append(args, "expo-cli")
 	}
 
 	cmd := command.New("npm", args...)
@@ -54,9 +56,6 @@ func (e *Expo) InstallExpoCLI() error {
 // Login with your Expo account
 func (e *Expo) Login(userName string, password stepconf.Secret) error {
 	args := []string{"login", "--non-interactive", "-u", userName, "-p", string(password)}
-	if e.Version != "latest" {
-		args = append(args, e.Version)
-	}
 
 	cmd := command.New("expo", args...)
 	cmd.SetStdout(os.Stdout)
@@ -82,9 +81,6 @@ func (e *Expo) Logout() error {
 // Eject command creates Xcode and Android Studio projects for your app.
 func (e *Expo) Eject() error {
 	args := []string{"eject", "--non-interactive", "--eject-method", e.Method.String()}
-	if e.Version != "latest" {
-		args = append(args, e.Version)
-	}
 
 	cmd := command.New("expo", args...)
 	cmd.SetStdout(os.Stdout)
