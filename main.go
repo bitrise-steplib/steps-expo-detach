@@ -58,7 +58,7 @@ func main() {
 	//
 	// Logging in the user to the Expo account
 	fmt.Println()
-	log.Infof("Login: %s", cfg.ExpoCLIVersion)
+	log.Infof("Login to Expo")
 	{
 		switch ejectMethod {
 		case expo.ExpoKit:
@@ -73,7 +73,7 @@ func main() {
 	//
 	// Eject project via the Expo CLI
 	fmt.Println()
-	log.Infof("Eject project: %s", cfg.ExpoCLIVersion)
+	log.Infof("Eject project")
 	{
 		if err := e.Eject(); err != nil {
 			failf("Failed to eject project (%s), error: %s", filepath.Base(cfg.ProjectPath), err)
