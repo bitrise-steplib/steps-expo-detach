@@ -1,0 +1,77 @@
+title: '[Beta] Expo Detach'
+summary: Creates Xcode and Android Studio projects for your app. Use this if you need to add custom native functionality.
+description: |-
+  Using the The Expo Development CLI to create Xcode and Android Studio projects for your app.
+  **EXPO DEVELOPMENT CLI** https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli
+website: https://github.com/bitrise-steplib/steps-expo-detach
+source_code_url: https://github.com/bitrise-steplib/steps-expo-detach
+support_url: https://github.com/bitrise-steplib/steps-expo-detach/issues
+
+type_tags:
+  - utility
+
+deps:
+  brew:
+  - name: go
+  apt_get:
+  - name: golang
+    bin_name: go
+
+
+toolkit:
+  go:
+    package_name: github.com/bitrise-steplib/steps-expo-detach
+
+
+inputs:
+  - project_path: $BITRISE_SOURCE_DIR
+    opts:
+      title: Project path
+      summary: Project path
+      description: |-
+        The path of your project directory
+      is_required: true
+  - expo_cli_verson: "latest"
+    opts:
+      title: Expo CLI version
+      summary: Specify the Expo CLI verion to install.
+      description: |-
+        Specify the Expo CLI verion to install.
+        The Expo CLI detach your project and creates Xcode and Android Studio projects for your app.
+
+
+        [https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli](https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli)
+        
+        
+        A couple of examples:
+
+        
+        * "2.0.0"
+        * latest
+      is_required: "true"
+  - user_name: ""
+    opts:
+      title: Username for Expo
+      summary: Username for Expo
+      description: |-
+        Your account's username for `https://expo.io/` .
+
+
+        **NOTE** You need to use your username and not your e-mail adress.
+  - password: ""
+    opts:
+      title: Password for your Expo account
+      summary: Password for your Expo account
+      description: |-
+        Your password for your for `https://expo.io/` .
+      is_sensitive: true
+  - logout: "false"
+    opts:
+      title: Logout from your Expo account
+      summary: Should we log you out from your Expo account at the end of the step?
+      description: |-
+        If you provided account credentials to the step, you can ask it to log you out at the end of the eject process.
+      is_required: true
+      value_options:
+        - "true"
+        - "false"
