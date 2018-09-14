@@ -25,6 +25,9 @@ func main() {
 		failf("Issue with input: %s", err)
 	}
 
+	fmt.Println()
+	stepconf.Print(cfg)
+
 	if err := validateUserNameAndpassword(cfg.UserName, cfg.Password); err != nil {
 		failf("Input validation error: %s", err)
 	}
