@@ -9,19 +9,15 @@ support_url: https://github.com/bitrise-steplib/steps-expo-detach/issues
 
 type_tags:
   - utility
-
 deps:
   brew:
   - name: go
   apt_get:
   - name: golang
     bin_name: go
-
-
 toolkit:
   go:
     package_name: github.com/bitrise-steplib/steps-expo-detach
-
 
 inputs:
   - project_path: $BITRISE_SOURCE_DIR
@@ -63,15 +59,5 @@ inputs:
       title: Password for your Expo account
       summary: Password for your Expo account
       description: |-
-        Your password for your for `https://expo.io/` .
+        Your password for `https://expo.io/` .
       is_sensitive: true
-  - logout: "false"
-    opts:
-      title: Logout from your Expo account
-      summary: Should we log you out from your Expo account at the end of the step?
-      description: |-
-        If you provided account credentials to the step, you can ask it to log you out at the end of the eject process.
-      is_required: true
-      value_options:
-        - "true"
-        - "false"
