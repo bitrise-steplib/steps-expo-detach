@@ -1,0 +1,142 @@
+format_version: 5
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+
+app:
+  envs:
+  - BITRISE_STEP_GIT_CLONE_URL: https://github.com/bitrise-steplib/steps-expo-detach.git
+
+  # Define it in .bitrise.secrets.yml
+  - USER_NAME: $USER_NAME
+  - PASSWORD: $PASSWORD
+
+workflows:
+  test:
+    envs:
+    - ORIGIN_SOURCE_DIR: $BITRISE_SOURCE_DIR
+    - SAMPLE_APP_URL: https://github.com/bitrise-samples/react-native-expo.git
+    before_run:
+    - audit-this-step
+    steps:
+    - go-list:
+    - golint:
+    - errcheck:
+    - go-test:
+    after_run:
+    - plain
+    - expo_kit
+    - plain_2_0_0
+    - expo_kit_2_0_0
+
+  plain:
+    before_run:
+    - _clear_workdir
+    steps:
+    - script:
+        title: Clone sample app
+        inputs:
+        - content: git clone $SAMPLE_APP_URL . && cd
+    - npm@0.9.1:
+        title: Install node modules for the expo project
+        inputs:
+        - command: install
+    - path::./:
+        title: Step Test
+        run_if: true
+        inputs:
+        - project_path: $BITRISE_SOURCE_DIR
+        - expo_cli_verson: "latest"
+
+  plain_2_0_0:
+    before_run:
+    - _clear_workdir
+    steps:
+    - script:
+        title: Clone sample app
+        inputs:
+        - content: git clone $SAMPLE_APP_URL . && cd
+    - npm@0.9.1:
+        title: Install node modules for the expo project
+        inputs:
+        - command: install
+    - path::./:
+        title: Step Test
+        run_if: true
+        inputs:
+        - project_path: $BITRISE_SOURCE_DIR
+        - expo_cli_verson: "2.0.0"
+    
+  expo_kit:
+    before_run:
+    - _clear_workdir
+    steps:
+    - script:
+        title: Clone sample app
+        inputs:
+        - content: git clone -b expo_sdk $SAMPLE_APP_URL . && cd
+    - npm@0.9.1:
+        title: Install node modules for the expo project
+        inputs:
+        - command: install
+    - path::./:
+        title: Step Test
+        run_if: true
+        inputs:
+        - project_path: $BITRISE_SOURCE_DIR
+        - expo_cli_verson: "latest"
+        - user_name: $USER_NAME
+        - password: $PASSWORD
+
+  expo_kit_2_0_0:
+    before_run:
+    - _clear_workdir
+    steps:
+    - script:
+        title: Clone sample app
+        inputs:
+        - content: git clone -b expo_sdk $SAMPLE_APP_URL . && cd
+    - npm@0.9.1:
+        title: Install node modules for the expo project
+        inputs:
+        - command: install
+    - path::./:
+        title: Step Test
+        run_if: true
+        inputs:
+        - project_path: $BITRISE_SOURCE_DIR
+        - expo_cli_verson: "2.0.0"
+        - user_name: $USER_NAME
+        - password: $PASSWORD
+
+  _clear_workdir:
+    envs:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            cd ${ORIGIN_SOURCE_DIR}
+            rm -rf "./_tmp"
+            mkdir "_tmp"
+    - change-workdir:
+        title: Switch working dir to test / _tmp dir
+        description: |-
+          To prevent step testing issues, like referencing relative
+          files with just './some-file' in the step's code, which would
+          work for testing the step from this directory directly
+          but would break if the step is included in another `bitrise.yml`.
+        run_if: true
+        inputs:
+        - path: ${ORIGIN_SOURCE_DIR}/_tmp
+        - is_create_path: true
+
+  # ----------------------------------------------------------------
+  # --- workflows to Share this step into a Step Library
+  audit-this-step:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            stepman audit --step-yml ./step.yml
