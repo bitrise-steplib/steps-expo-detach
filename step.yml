@@ -1,4 +1,4 @@
-title: '[Beta] Expo Detach'
+title: '[Beta] Expo Eject'
 summary: Creates Xcode and Android Studio projects for your app. Use this if you need to add custom native functionality.
 description: |-
   Using the The Expo Development CLI to create Xcode and Android Studio projects for your app.
@@ -33,7 +33,7 @@ inputs:
       summary: Specify the Expo CLI verion to install.
       description: |-
         Specify the Expo CLI verion to install.
-        The Expo CLI detach your project and creates Xcode and Android Studio projects for your app.
+        The Expo CLI eject your project and creates Xcode and Android Studio projects for your app.
 
 
         [https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli](https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli)
