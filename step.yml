@@ -1,5 +1,5 @@
 title: '[Beta] Expo Eject'
-summary: Creates Xcode and Android Studio projects for your app. Use this if you need to add custom native functionality.
+summary: Creates Xcode and Android Studio projects for your app.
 description: |-
   Using the The Expo Development CLI to create Xcode and Android Studio projects for your app.
   **EXPO DEVELOPMENT CLI** https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli
@@ -30,10 +30,10 @@ inputs:
   - expo_cli_verson: "latest"
     opts:
       title: Expo CLI version
-      summary: Specify the Expo CLI verion to install.
+      summary: Specify the Expo CLI version to install.
       description: |-
-        Specify the Expo CLI verion to install.
-        The Expo CLI eject your project and creates Xcode and Android Studio projects for your app.
+        Specify the Expo CLI version to install.
+        The Expo CLI ejects your project and creates Xcode and Android Studio projects for your app.
 
 
         [https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli](https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli)
@@ -53,11 +53,11 @@ inputs:
         Your account's username for `https://expo.io/` .
 
 
-        **NOTE** You need to use your username and not your e-mail adress.
+        **NOTE** You need to use your username and not your e-mail address.
   - password: ""
     opts:
       title: Password for your Expo account
-      summary: Password for your Expo account
+      summary: Password for your Expo account.
       description: |-
         Your password for `https://expo.io/` .
       is_sensitive: true
