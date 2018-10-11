@@ -3,20 +3,21 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-tools/go-steputils/stepconf"
 )
 
 // Config ...
 type Config struct {
-	ProjectPath    string          `env:"project_path,dir"`
+	Workdir        string          `env:"workdir"`
 	ExpoCLIVersion string          `env:"expo_cli_verson,required"`
 	UserName       string          `env:"user_name"`
 	Password       stepconf.Secret `env:"password"`
+	RunPublish     string          `env:"run_publish"`
 }
 
 // EjectMethod if the project is using Expo SDK and you choose the "plain" --eject-method those imports will stop working.
@@ -36,6 +37,7 @@ func (m EjectMethod) String() string {
 type Expo struct {
 	Version string
 	Method  EjectMethod
+	Workdir string
 }
 
 // installExpoCLI runs the install npm command to install the expo-cli
@@ -87,8 +89,25 @@ func (e Expo) eject() error {
 	cmd := command.New("expo", args...)
 	cmd.SetStdout(os.Stdout)
 	cmd.SetStderr(os.Stderr)
+	if e.Workdir != "" {
+		cmd.SetDir(e.Workdir)
+	}
 
-	log.Printf("$ " + cmd.PrintableCommandArgs())
+	log.Donef("\n$ " + cmd.PrintableCommandArgs())
+	return cmd.Run()
+}
+
+func (e Expo) publish() error {
+	args := []string{"publish", "--non-interactive"}
+
+	cmd := command.New("expo", args...)
+	cmd.SetStdout(os.Stdout)
+	cmd.SetStderr(os.Stderr)
+	if e.Workdir != "" {
+		cmd.SetDir(e.Workdir)
+	}
+
+	log.Donef("\n$ " + cmd.PrintableCommandArgs())
 	return cmd.Run()
 }
 
@@ -109,6 +128,18 @@ func validateUserNameAndpassword(userName string, password stepconf.Secret) erro
 	return nil
 }
 
+func validateWorkdir(dir string) error {
+	if dir == "" {
+		return nil
+	}
+	if exist, err := pathutil.IsPathExists(dir); err != nil {
+		return err
+	} else if !exist {
+		return fmt.Errorf("Workdir does not exist")
+	}
+	return nil
+}
+
 func main() {
 	var cfg Config
 	if err := stepconf.Parse(&cfg); err != nil {
@@ -119,6 +150,9 @@ func main() {
 	stepconf.Print(cfg)
 
 	if err := validateUserNameAndpassword(cfg.UserName, cfg.Password); err != nil {
+		failf("Input validation error: %s", err)
+	}
+	if err := validateWorkdir(cfg.Workdir); err != nil {
 		failf("Input validation error: %s", err)
 	}
 
@@ -139,6 +173,7 @@ func main() {
 	e := Expo{
 		Version: cfg.ExpoCLIVersion,
 		Method:  ejectMethod,
+		Workdir: cfg.Workdir,
 	}
 
 	//
@@ -190,9 +225,15 @@ func main() {
 	log.Infof("Eject project")
 	{
 		if err := e.eject(); err != nil {
-			failf("Failed to eject project (%s), error: %s", filepath.Base(cfg.ProjectPath), err)
+			failf("Failed to eject project: %s", err)
 		}
 
+	}
+
+	if cfg.RunPublish == "yes" {
+		if err := e.publish(); err != nil {
+			failf("Failed to publish project: %s", err)
+		}
 	}
 
 	fmt.Println()
