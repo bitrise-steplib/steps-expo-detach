@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/bitrise-io/go-utils/command"
+	"github.com/bitrise-io/go-utils/errorutil"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
@@ -244,6 +245,8 @@ func main() {
 	}
 
 	if cfg.ForceReactNativeVersion != "" {
+		//
+		// Force certain version of React Native in package.json file
 		fmt.Println()
 		log.Infof("Set react-native dependency version: %s", cfg.ForceReactNativeVersion)
 
@@ -272,6 +275,26 @@ func main() {
 
 		if err := fileutil.WriteBytesToFile(filepath.Join(cfg.Workdir, "package.json"), b); err != nil {
 			failf("Failed to write modified package.json file: %s", err)
+		}
+
+		//
+		// Install new node dependencies
+		log.Printf("install new node dependencies")
+
+		nodeDepManager := "npm"
+		if exist, err := pathutil.IsPathExists(filepath.Join(cfg.Workdir, "yarn.lock")); err != nil {
+			log.Warnf("Failed to check if yarn.lock file exists in the workdir: %s", err)
+		} else if exist {
+			nodeDepManager = "yarn"
+		}
+
+		cmd := command.New(nodeDepManager, "install")
+		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		if err != nil {
+			if errorutil.IsExitStatusError(err) {
+				failf("%s failed: %s", cmd.PrintableCommandArgs(), out)
+			}
+			failf("%s failed: %s", cmd.PrintableCommandArgs(), err)
 		}
 	}
 }
