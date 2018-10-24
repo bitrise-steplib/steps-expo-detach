@@ -87,3 +87,9 @@ inputs:
       value_options:
       - "yes"
       - "no"
+  - force_react_native_version:
+    opts:
+      title: React Native version to set in package.json
+      summary: React Native version to set in package.json after the eject process.
+      description: |-
+        React Native version to set in package.json after the eject process.

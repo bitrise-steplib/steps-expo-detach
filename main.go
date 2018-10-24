@@ -1,23 +1,28 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/bitrise-io/go-utils/command"
+	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-tools/go-steputils/stepconf"
+	"github.com/bitrise-tools/xcode-project/serialized"
 )
 
 // Config ...
 type Config struct {
-	Workdir        string          `env:"workdir"`
-	ExpoCLIVersion string          `env:"expo_cli_verson,required"`
-	UserName       string          `env:"user_name"`
-	Password       stepconf.Secret `env:"password"`
-	RunPublish     string          `env:"run_publish"`
+	Workdir                 string          `env:"workdir"`
+	ExpoCLIVersion          string          `env:"expo_cli_verson,required"`
+	UserName                string          `env:"user_name"`
+	Password                stepconf.Secret `env:"password"`
+	RunPublish              string          `env:"run_publish"`
+	ForceReactNativeVersion string          `env:"force_react_native_version"`
 }
 
 // EjectMethod if the project is using Expo SDK and you choose the "plain" --eject-method those imports will stop working.
@@ -28,10 +33,6 @@ const (
 	Plain   EjectMethod = "plain"
 	ExpoKit EjectMethod = "expoKit"
 )
-
-func (m EjectMethod) String() string {
-	return string(m)
-}
 
 // Expo CLI
 type Expo struct {
@@ -84,7 +85,7 @@ func (e Expo) logout() error {
 
 // Eject command creates Xcode and Android Studio projects for your app.
 func (e Expo) eject() error {
-	args := []string{"eject", "--non-interactive", "--eject-method", e.Method.String()}
+	args := []string{"eject", "--non-interactive", "--eject-method", string(e.Method)}
 
 	cmd := command.New("expo", args...)
 	cmd.SetStdout(os.Stdout)
@@ -233,6 +234,35 @@ func main() {
 	if cfg.RunPublish == "yes" {
 		if err := e.publish(); err != nil {
 			failf("Failed to publish project: %s", err)
+		}
+	}
+
+	if cfg.ForceReactNativeVersion != "" {
+		b, err := fileutil.ReadBytesFromFile(filepath.Join(cfg.Workdir, "package.json"))
+		if err != nil {
+			failf("Failed to read package.json file: %s", err)
+		}
+
+		var packages serialized.Object
+		if err := json.Unmarshal(b, &packages); err != nil {
+			failf("Failed to parse package.json file: %s", err)
+		}
+
+		deps, err := packages.Object("dependencies")
+		if err != nil {
+			failf("Failed to parse dependencies from package.json file: %s", err)
+		}
+
+		deps["react-native"] = cfg.ForceReactNativeVersion
+		packages["dependencies"] = deps
+
+		b, err = json.MarshalIndent(packages, "", "  ")
+		if err != nil {
+			failf("Failed to serialize modified package.json file: %s", err)
+		}
+
+		if err := fileutil.WriteBytesToFile(filepath.Join(cfg.Workdir, "package.json"), b); err != nil {
+			failf("Failed to write modified package.json file: %s", err)
 		}
 	}
 

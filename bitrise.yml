@@ -5,15 +5,15 @@ app:
   envs:
   - BITRISE_STEP_GIT_CLONE_URL: https://github.com/bitrise-steplib/steps-expo-detach.git
 
+  - ORIGIN_SOURCE_DIR: $BITRISE_SOURCE_DIR
+  - SAMPLE_APP_URL: https://github.com/bitrise-samples/react-native-expo.git
+
   # Define it in .bitrise.secrets.yml
   - USER_NAME: $USER_NAME
   - PASSWORD: $PASSWORD
 
 workflows:
   test:
-    envs:
-    - ORIGIN_SOURCE_DIR: $BITRISE_SOURCE_DIR
-    - SAMPLE_APP_URL: https://github.com/bitrise-samples/react-native-expo.git
     before_run:
     - audit-this-step
     steps:
@@ -45,6 +45,7 @@ workflows:
         inputs:
         - project_path: $BITRISE_SOURCE_DIR
         - expo_cli_verson: "latest"
+        - force_react_native_version: 0.55.4
 
   plain_2_0_0:
     before_run:
@@ -129,6 +130,21 @@ workflows:
         inputs:
         - path: ${ORIGIN_SOURCE_DIR}/_tmp
         - is_create_path: true
+
+  dep-update:
+    title: Dep update
+    description: |
+      Used for updating bitrise dependencies with dep
+    steps:
+    - script:
+        title: Dependency update
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            go get -u -v github.com/golang/dep/cmd/dep
+            dep ensure -v
+            dep ensure -v -update
 
   # ----------------------------------------------------------------
   # --- workflows to Share this step into a Step Library
