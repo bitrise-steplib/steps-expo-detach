@@ -231,13 +231,22 @@ func main() {
 
 	}
 
+	fmt.Println()
+	log.Donef("Successfully ejected your project")
+
 	if cfg.RunPublish == "yes" {
+		fmt.Println()
+		log.Infof("Running expo publish")
+
 		if err := e.publish(); err != nil {
 			failf("Failed to publish project: %s", err)
 		}
 	}
 
 	if cfg.ForceReactNativeVersion != "" {
+		fmt.Println()
+		log.Infof("Set react-native dependency version: %s", cfg.ForceReactNativeVersion)
+
 		b, err := fileutil.ReadBytesFromFile(filepath.Join(cfg.Workdir, "package.json"))
 		if err != nil {
 			failf("Failed to read package.json file: %s", err)
@@ -265,7 +274,4 @@ func main() {
 			failf("Failed to write modified package.json file: %s", err)
 		}
 	}
-
-	fmt.Println()
-	log.Donef("Successfully ejected your project")
 }
