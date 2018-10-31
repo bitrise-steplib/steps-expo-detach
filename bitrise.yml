@@ -45,7 +45,7 @@ workflows:
         inputs:
         - project_path: $BITRISE_SOURCE_DIR
         - expo_cli_verson: "latest"
-        - force_react_native_version: 0.55.4
+        - override_react_native_version: 0.55.4
 
   plain_2_0_0:
     before_run:

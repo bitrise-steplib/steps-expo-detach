@@ -109,7 +109,7 @@ func (e Expo) publish() error {
 		cmd.SetDir(e.Workdir)
 	}
 
-	log.Donef("\n$ " + cmd.PrintableCommandArgs())
+	log.Donef("$ " + cmd.PrintableCommandArgs())
 	return cmd.Run()
 }
 
