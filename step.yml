@@ -22,25 +22,21 @@ toolkit:
 inputs:
   - project_path: $BITRISE_SOURCE_DIR
     opts:
-      title: Project path
-      summary: Project path
+      title: Working directory
+      summary: The root directory of the React Native project
       description: |-
-        The path of your project directory
-      is_required: true
+        The root directory of the React Native project (the directory of the project package.js file).
   - expo_cli_verson: "latest"
     opts:
       title: Expo CLI version
       summary: Specify the Expo CLI version to install.
       description: |-
-        Specify the Expo CLI version to install.
+        Specify the Expo CLI version to install.  
         The Expo CLI ejects your project and creates Xcode and Android Studio projects for your app.
-
 
         [https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli](https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli)
         
-        
         A couple of examples:
-
         
         * "2.0.0"
         * latest
@@ -52,12 +48,48 @@ inputs:
       description: |-
         Your account's username for `https://expo.io/` .
 
+        In case of React Native project __using Expo Kit__ library (any .js file imports expo),  
+        the `user_name` and `password` inputs are __required__.
 
-        **NOTE** You need to use your username and not your e-mail address.
+        If you provide these inputs the step will run: `expo eject --eject-method expoKit`,  
+        otherwise: `expo eject --eject-method plain`.
+
+        **NOTE:** You need to use your username and not your e-mail address.
   - password: ""
     opts:
       title: Password for your Expo account
       summary: Password for your Expo account.
       description: |-
         Your password for `https://expo.io/` .
+
+        In case of React Native project __using Expo Kit__ library (any .js file imports expo),  
+        the `user_name` and `password` inputs are __required__.
+
+        If you provide these inputs the step will run: `expo eject --eject-method expoKit`,  
+        otherwise: `expo eject --eject-method plain`.
       is_sensitive: true
+  - run_publish: "no"
+    opts:
+      title: Run expo publish after eject?
+      summary: Should the step run `expo publish` after eject?
+      description: |-
+        Should the step run `expo publish` after eject?
+
+        In case of React Native project using Expo Kit library (any .js file imports expo),  
+        `expo publis` command generates the:
+
+        - ./android/app/src/main/assets/shell-app-manifest.json
+        - ./android/app/src/main/assets/shell-app.bundle
+        - ./ios/bitriseexpokit/Supporting/shell-app-manifest.json
+        - ./ios/bitriseexpokit/Supporting/shell-app.bundle
+
+        files, which are required for the native builds.
+      value_options:
+      - "yes"
+      - "no"
+  - override_react_native_version:
+    opts:
+      title: React Native version to set in package.json
+      summary: React Native version to set in package.json after the eject process.
+      description: |-
+        React Native version to set in package.json after the eject process.

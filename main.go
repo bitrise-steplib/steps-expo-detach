@@ -1,22 +1,29 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/bitrise-io/go-utils/command"
+	"github.com/bitrise-io/go-utils/errorutil"
+	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-tools/go-steputils/stepconf"
+	"github.com/bitrise-tools/xcode-project/serialized"
 )
 
 // Config ...
 type Config struct {
-	ProjectPath    string          `env:"project_path,dir"`
-	ExpoCLIVersion string          `env:"expo_cli_verson,required"`
-	UserName       string          `env:"user_name"`
-	Password       stepconf.Secret `env:"password"`
+	Workdir                    string          `env:"project_path,dir"`
+	ExpoCLIVersion             string          `env:"expo_cli_verson,required"`
+	UserName                   string          `env:"user_name"`
+	Password                   stepconf.Secret `env:"password"`
+	RunPublish                 string          `env:"run_publish"`
+	OverrideReactNativeVersion string          `env:"override_react_native_version"`
 }
 
 // EjectMethod if the project is using Expo SDK and you choose the "plain" --eject-method those imports will stop working.
@@ -28,14 +35,11 @@ const (
 	ExpoKit EjectMethod = "expoKit"
 )
 
-func (m EjectMethod) String() string {
-	return string(m)
-}
-
 // Expo CLI
 type Expo struct {
 	Version string
 	Method  EjectMethod
+	Workdir string
 }
 
 // installExpoCLI runs the install npm command to install the expo-cli
@@ -51,7 +55,7 @@ func (e Expo) installExpoCLI() error {
 	cmd.SetStdout(os.Stdout)
 	cmd.SetStderr(os.Stderr)
 
-	log.Printf("$ " + cmd.PrintableCommandArgs())
+	log.Donef("$ " + cmd.PrintableCommandArgs())
 	return cmd.Run()
 }
 
@@ -82,20 +86,56 @@ func (e Expo) logout() error {
 
 // Eject command creates Xcode and Android Studio projects for your app.
 func (e Expo) eject() error {
-	args := []string{"eject", "--non-interactive", "--eject-method", e.Method.String()}
+	args := []string{"eject", "--non-interactive", "--eject-method", string(e.Method)}
 
 	cmd := command.New("expo", args...)
 	cmd.SetStdout(os.Stdout)
 	cmd.SetStderr(os.Stderr)
+	if e.Workdir != "" {
+		cmd.SetDir(e.Workdir)
+	}
 
-	log.Printf("$ " + cmd.PrintableCommandArgs())
+	log.Donef("$ " + cmd.PrintableCommandArgs())
 	return cmd.Run()
 }
 
-func failf(format string, v ...interface{}) {
-	log.Errorf(format, v...)
-	log.Warnf("For more details you can enable the debug logs by turning on the verbose step input.")
-	os.Exit(1)
+func (e Expo) publish() error {
+	args := []string{"publish", "--non-interactive"}
+
+	cmd := command.New("expo", args...)
+	cmd.SetStdout(os.Stdout)
+	cmd.SetStderr(os.Stderr)
+	if e.Workdir != "" {
+		cmd.SetDir(e.Workdir)
+	}
+
+	log.Donef("$ " + cmd.PrintableCommandArgs())
+	return cmd.Run()
+}
+
+func parsePackageJSON(pth string) (serialized.Object, error) {
+	b, err := fileutil.ReadBytesFromFile(pth)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read package.json file: %s", err)
+	}
+
+	var packages serialized.Object
+	if err := json.Unmarshal(b, &packages); err != nil {
+		return nil, fmt.Errorf("Failed to parse package.json file: %s", err)
+	}
+	return packages, nil
+}
+
+func savePackageJSON(packages serialized.Object, pth string) error {
+	b, err := json.MarshalIndent(packages, "", "  ")
+	if err != nil {
+		return fmt.Errorf("Failed to serialize modified package.json file: %s", err)
+	}
+
+	if err := fileutil.WriteBytesToFile(pth, b); err != nil {
+		return fmt.Errorf("Failed to write modified package.json file: %s", err)
+	}
+	return nil
 }
 
 func validateUserNameAndpassword(userName string, password stepconf.Secret) error {
@@ -107,6 +147,11 @@ func validateUserNameAndpassword(userName string, password stepconf.Secret) erro
 		return fmt.Errorf("password is specified but is not provided user name")
 	}
 	return nil
+}
+
+func failf(format string, v ...interface{}) {
+	log.Errorf(format, v...)
+	os.Exit(1)
 }
 
 func main() {
@@ -139,6 +184,7 @@ func main() {
 	e := Expo{
 		Version: cfg.ExpoCLIVersion,
 		Method:  ejectMethod,
+		Workdir: cfg.Workdir,
 	}
 
 	//
@@ -190,11 +236,65 @@ func main() {
 	log.Infof("Eject project")
 	{
 		if err := e.eject(); err != nil {
-			failf("Failed to eject project (%s), error: %s", filepath.Base(cfg.ProjectPath), err)
+			failf("Failed to eject project: %s", err)
 		}
 
 	}
 
 	fmt.Println()
 	log.Donef("Successfully ejected your project")
+
+	if cfg.RunPublish == "yes" {
+		fmt.Println()
+		log.Infof("Running expo publish")
+
+		if err := e.publish(); err != nil {
+			failf("Failed to publish project: %s", err)
+		}
+	}
+
+	if cfg.OverrideReactNativeVersion != "" {
+		//
+		// Force certain version of React Native in package.json file
+		fmt.Println()
+		log.Infof("Set react-native dependency version: %s", cfg.OverrideReactNativeVersion)
+
+		packageJSONPth := filepath.Join(cfg.Workdir, "package.json")
+		packages, err := parsePackageJSON(packageJSONPth)
+		if err != nil {
+			failf(err.Error())
+		}
+
+		deps, err := packages.Object("dependencies")
+		if err != nil {
+			failf("Failed to parse dependencies from package.json file: %s", err)
+		}
+
+		deps["react-native"] = cfg.OverrideReactNativeVersion
+		packages["dependencies"] = deps
+
+		if err := savePackageJSON(packages, packageJSONPth); err != nil {
+			failf(err.Error())
+		}
+
+		//
+		// Install new node dependencies
+		log.Printf("install new node dependencies")
+
+		nodeDepManager := "npm"
+		if exist, err := pathutil.IsPathExists(filepath.Join(cfg.Workdir, "yarn.lock")); err != nil {
+			log.Warnf("Failed to check if yarn.lock file exists in the workdir: %s", err)
+		} else if exist {
+			nodeDepManager = "yarn"
+		}
+
+		cmd := command.New(nodeDepManager, "install")
+		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		if err != nil {
+			if errorutil.IsExitStatusError(err) {
+				failf("%s failed: %s", cmd.PrintableCommandArgs(), out)
+			}
+			failf("%s failed: %s", cmd.PrintableCommandArgs(), err)
+		}
+	}
 }
