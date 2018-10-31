@@ -18,12 +18,12 @@ import (
 
 // Config ...
 type Config struct {
-	Workdir                 string          `env:"workdir"`
-	ExpoCLIVersion          string          `env:"expo_cli_verson,required"`
-	UserName                string          `env:"user_name"`
-	Password                stepconf.Secret `env:"password"`
-	RunPublish              string          `env:"run_publish"`
-	ForceReactNativeVersion string          `env:"force_react_native_version"`
+	Workdir                    string          `env:"project_path,dir"`
+	ExpoCLIVersion             string          `env:"expo_cli_verson,required"`
+	UserName                   string          `env:"user_name"`
+	Password                   stepconf.Secret `env:"password"`
+	RunPublish                 string          `env:"run_publish"`
+	OverrideReactNativeVersion string          `env:"override_react_native_version"`
 }
 
 // EjectMethod if the project is using Expo SDK and you choose the "plain" --eject-method those imports will stop working.
@@ -55,7 +55,7 @@ func (e Expo) installExpoCLI() error {
 	cmd.SetStdout(os.Stdout)
 	cmd.SetStderr(os.Stderr)
 
-	log.Printf("$ " + cmd.PrintableCommandArgs())
+	log.Donef("$ " + cmd.PrintableCommandArgs())
 	return cmd.Run()
 }
 
@@ -95,7 +95,7 @@ func (e Expo) eject() error {
 		cmd.SetDir(e.Workdir)
 	}
 
-	log.Donef("\n$ " + cmd.PrintableCommandArgs())
+	log.Donef("$ " + cmd.PrintableCommandArgs())
 	return cmd.Run()
 }
 
@@ -113,10 +113,29 @@ func (e Expo) publish() error {
 	return cmd.Run()
 }
 
-func failf(format string, v ...interface{}) {
-	log.Errorf(format, v...)
-	log.Warnf("For more details you can enable the debug logs by turning on the verbose step input.")
-	os.Exit(1)
+func parsePackageJSON(pth string) (serialized.Object, error) {
+	b, err := fileutil.ReadBytesFromFile(pth)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read package.json file: %s", err)
+	}
+
+	var packages serialized.Object
+	if err := json.Unmarshal(b, &packages); err != nil {
+		return nil, fmt.Errorf("Failed to parse package.json file: %s", err)
+	}
+	return packages, nil
+}
+
+func savePackageJSON(packages serialized.Object, pth string) error {
+	b, err := json.MarshalIndent(packages, "", "  ")
+	if err != nil {
+		return fmt.Errorf("Failed to serialize modified package.json file: %s", err)
+	}
+
+	if err := fileutil.WriteBytesToFile(pth, b); err != nil {
+		return fmt.Errorf("Failed to write modified package.json file: %s", err)
+	}
+	return nil
 }
 
 func validateUserNameAndpassword(userName string, password stepconf.Secret) error {
@@ -130,16 +149,9 @@ func validateUserNameAndpassword(userName string, password stepconf.Secret) erro
 	return nil
 }
 
-func validateWorkdir(dir string) error {
-	if dir == "" {
-		return nil
-	}
-	if exist, err := pathutil.IsPathExists(dir); err != nil {
-		return err
-	} else if !exist {
-		return fmt.Errorf("Workdir does not exist")
-	}
-	return nil
+func failf(format string, v ...interface{}) {
+	log.Errorf(format, v...)
+	os.Exit(1)
 }
 
 func main() {
@@ -152,9 +164,6 @@ func main() {
 	stepconf.Print(cfg)
 
 	if err := validateUserNameAndpassword(cfg.UserName, cfg.Password); err != nil {
-		failf("Input validation error: %s", err)
-	}
-	if err := validateWorkdir(cfg.Workdir); err != nil {
 		failf("Input validation error: %s", err)
 	}
 
@@ -244,20 +253,16 @@ func main() {
 		}
 	}
 
-	if cfg.ForceReactNativeVersion != "" {
+	if cfg.OverrideReactNativeVersion != "" {
 		//
 		// Force certain version of React Native in package.json file
 		fmt.Println()
-		log.Infof("Set react-native dependency version: %s", cfg.ForceReactNativeVersion)
+		log.Infof("Set react-native dependency version: %s", cfg.OverrideReactNativeVersion)
 
-		b, err := fileutil.ReadBytesFromFile(filepath.Join(cfg.Workdir, "package.json"))
+		packageJSONPth := filepath.Join(cfg.Workdir, "package.json")
+		packages, err := parsePackageJSON(packageJSONPth)
 		if err != nil {
-			failf("Failed to read package.json file: %s", err)
-		}
-
-		var packages serialized.Object
-		if err := json.Unmarshal(b, &packages); err != nil {
-			failf("Failed to parse package.json file: %s", err)
+			failf(err.Error())
 		}
 
 		deps, err := packages.Object("dependencies")
@@ -265,16 +270,11 @@ func main() {
 			failf("Failed to parse dependencies from package.json file: %s", err)
 		}
 
-		deps["react-native"] = cfg.ForceReactNativeVersion
+		deps["react-native"] = cfg.OverrideReactNativeVersion
 		packages["dependencies"] = deps
 
-		b, err = json.MarshalIndent(packages, "", "  ")
-		if err != nil {
-			failf("Failed to serialize modified package.json file: %s", err)
-		}
-
-		if err := fileutil.WriteBytesToFile(filepath.Join(cfg.Workdir, "package.json"), b); err != nil {
-			failf("Failed to write modified package.json file: %s", err)
+		if err := savePackageJSON(packages, packageJSONPth); err != nil {
+			failf(err.Error())
 		}
 
 		//

@@ -20,7 +20,7 @@ toolkit:
     package_name: github.com/bitrise-steplib/steps-expo-detach
 
 inputs:
-  - workdir: $BITRISE_SOURCE_DIR
+  - project_path: $BITRISE_SOURCE_DIR
     opts:
       title: Working directory
       summary: The root directory of the React Native project
@@ -87,7 +87,7 @@ inputs:
       value_options:
       - "yes"
       - "no"
-  - force_react_native_version:
+  - override_react_native_version:
     opts:
       title: React Native version to set in package.json
       summary: React Native version to set in package.json after the eject process.
