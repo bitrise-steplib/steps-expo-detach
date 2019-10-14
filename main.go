@@ -31,7 +31,7 @@ type EjectMethod string
 
 // const ...
 const (
-	Plain   EjectMethod = "plain"
+	Plain   EjectMethod = "bare"
 	ExpoKit EjectMethod = "expoKit"
 )
 
