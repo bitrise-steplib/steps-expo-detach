@@ -26,12 +26,12 @@ type Config struct {
 	OverrideReactNativeVersion string          `env:"override_react_native_version"`
 }
 
-// EjectMethod if the project is using Expo SDK and you choose the "plain" --eject-method those imports will stop working.
+// EjectMethod if the project is using Expo SDK and you choose the "bare" --eject-method those imports will stop working.
 type EjectMethod string
 
 // const ...
 const (
-	Plain   EjectMethod = "bare"
+	Bare    EjectMethod = "bare"
 	ExpoKit EjectMethod = "expoKit"
 )
 
@@ -169,7 +169,7 @@ func main() {
 
 	//
 	// Select the --eject-method
-	ejectMethod := Plain
+	ejectMethod := Bare
 	fmt.Println()
 	log.Infof("Define --eject-method")
 	{
@@ -207,8 +207,8 @@ func main() {
 			if err := e.login(cfg.UserName, cfg.Password); err != nil {
 				failf("Failed to log in to your provided Expo account, error: %s", err)
 			}
-		case Plain:
-			log.Printf("--eject-method has been set to plain => Skip...")
+		case Bare:
+			log.Printf("--eject-method has been set to bare => Skip...")
 		}
 	}
 

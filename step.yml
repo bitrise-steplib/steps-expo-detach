@@ -38,7 +38,7 @@ inputs:
         
         A couple of examples:
         
-        * "2.0.0"
+        * "3.0.0"
         * latest
       is_required: "true"
   - user_name: ""
@@ -52,7 +52,7 @@ inputs:
         the `user_name` and `password` inputs are __required__.
 
         If you provide these inputs the step will run: `expo eject --eject-method expoKit`,  
-        otherwise: `expo eject --eject-method plain`.
+        otherwise: `expo eject --eject-method bare`.
 
         **NOTE:** You need to use your username and not your e-mail address.
   - password: ""
@@ -66,7 +66,7 @@ inputs:
         the `user_name` and `password` inputs are __required__.
 
         If you provide these inputs the step will run: `expo eject --eject-method expoKit`,  
-        otherwise: `expo eject --eject-method plain`.
+        otherwise: `expo eject --eject-method bare`.
       is_sensitive: true
   - run_publish: "no"
     opts:
