@@ -7,6 +7,7 @@ app:
 
   - ORIGIN_SOURCE_DIR: $BITRISE_SOURCE_DIR
   - SAMPLE_APP_URL: https://github.com/bitrise-samples/react-native-expo.git
+  - BRANCH: "SDK_34"
 
   # Define it in .bitrise.secrets.yml
   - USER_NAME: $USER_NAME
@@ -22,19 +23,17 @@ workflows:
     - errcheck:
     - go-test:
     after_run:
-    - plain
+    - bare
     - expo_kit
-    - plain_2_0_0
-    - expo_kit_2_0_0
 
-  plain:
+  bare:
     before_run:
     - _clear_workdir
     steps:
     - script:
         title: Clone sample app
         inputs:
-        - content: git clone $SAMPLE_APP_URL . && cd
+        - content: git clone $SAMPLE_APP_URL . -b $BRANCH && cd
     - npm@0.9.1:
         title: Install node modules for the expo project
         inputs:
@@ -46,25 +45,6 @@ workflows:
         - project_path: $BITRISE_SOURCE_DIR
         - expo_cli_verson: "latest"
         - override_react_native_version: 0.55.4
-
-  plain_2_0_0:
-    before_run:
-    - _clear_workdir
-    steps:
-    - script:
-        title: Clone sample app
-        inputs:
-        - content: git clone $SAMPLE_APP_URL . && cd
-    - npm@0.9.1:
-        title: Install node modules for the expo project
-        inputs:
-        - command: install
-    - path::./:
-        title: Step Test
-        run_if: true
-        inputs:
-        - project_path: $BITRISE_SOURCE_DIR
-        - expo_cli_verson: "2.0.0"
     
   expo_kit:
     before_run:
@@ -84,27 +64,6 @@ workflows:
         inputs:
         - project_path: $BITRISE_SOURCE_DIR
         - expo_cli_verson: "latest"
-        - user_name: $USER_NAME
-        - password: $PASSWORD
-
-  expo_kit_2_0_0:
-    before_run:
-    - _clear_workdir
-    steps:
-    - script:
-        title: Clone sample app
-        inputs:
-        - content: git clone -b expo_sdk $SAMPLE_APP_URL . && cd
-    - npm@0.9.1:
-        title: Install node modules for the expo project
-        inputs:
-        - command: install
-    - path::./:
-        title: Step Test
-        run_if: true
-        inputs:
-        - project_path: $BITRISE_SOURCE_DIR
-        - expo_cli_verson: "2.0.0"
         - user_name: $USER_NAME
         - password: $PASSWORD
 
