@@ -7,14 +7,10 @@ website: https://github.com/bitrise-steplib/steps-expo-detach
 source_code_url: https://github.com/bitrise-steplib/steps-expo-detach
 support_url: https://github.com/bitrise-steplib/steps-expo-detach/issues
 
+project_type_tags:
+  - react-native
 type_tags:
   - utility
-deps:
-  brew:
-  - name: go
-  apt_get:
-  - name: golang
-    bin_name: go
 toolkit:
   go:
     package_name: github.com/bitrise-steplib/steps-expo-detach
