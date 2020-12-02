@@ -1,37 +1,37 @@
-title: '[Beta] Expo Eject'
+title: "Expo Eject"
 summary: Creates Xcode and Android Studio projects for your app.
 description: |-
 
-   Expo is a toolchain that allows you to quickly get a React Native app up and running without having to use native code in Xcode or Android Studio. The Expo Eject Step is necessary to eject your app to install any missing native dependencies. Installing the native dependencies is done by our dedicated Steps, such as **Install missing Android SDK components** and **Run CocoaPods install**.
+  Expo is a toolchain that allows you to quickly get a React Native app up and running without having to use native code in Xcode or Android Studio. The Expo Eject Step is necessary to eject your app to install any missing native dependencies. Installing the native dependencies is done by our dedicated Steps, such as **Install missing Android SDK components** and **Run CocoaPods install**.
 
-   ### Configuring the Step
+  ### Configuring the Step
 
-   1. Add the Step to your Workflow after the Step or Steps that install your app's Javascript dependencies (such as **Run npm command** or **Run yarn command**).
+  1. Add the Step to your Workflow after the Step or Steps that install your app's Javascript dependencies (such as **Run npm command** or **Run yarn command**).
 
-   1. Set the **Working directory input field** to the value of your project directory. By default, you do not have to change this.
+  1. Set the **Working directory input field** to the value of your project directory. By default, you do not have to change this.
 
-   1. Specify the Expo CLI version.
+  1. Specify the Expo CLI version.
 
-      The default value is `latest` but you can specify an exact version, such as 3.0.0.
+     The default value is `latest` but you can specify an exact version, such as 3.0.0.
 
-   1. If your app uses an Expo SDK, you must provide the username and password for your Expo account! Without it, the Expo SDK imports will stop working.
+  1. If your app uses an Expo SDK, you must provide the username and password for your Expo account! Without it, the Expo SDK imports will stop working.
 
-   ### Troubleshooting
+  ### Troubleshooting
 
-   If the Expo CLI used the default `--eject-method` and your SDK imports stop working, check your Expo username and password.
+  If the Expo CLI used the default `--eject-method` and your SDK imports stop working, check your Expo username and password.
 
-   Make sure that the Expo CLI version you use is compatible with your app.
+  Make sure that the Expo CLI version you use is compatible with your app.
 
-   ### Useful links
+  ### Useful links
 
-   - [Expo Development CLI](https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli)
-   - [Getting started with Expo apps](https://devcenter.bitrise.io/getting-started/getting-started-with-expo-apps/)
+  - [Expo Development CLI](https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli)
+  - [Getting started with Expo apps](https://devcenter.bitrise.io/getting-started/getting-started-with-expo-apps/)
 
-   ### Related Steps
+  ### Related Steps
 
-   - [Install React Native](https://www.bitrise.io/integrations/steps/install-react-native)
-   - [Install missing Android SDK components](https://www.bitrise.io/integrations/steps/install-missing-android-tools)
-   - [Run CocoaPods install](https://www.bitrise.io/integrations/steps/cocoapods-install)
+  - [Install React Native](https://www.bitrise.io/integrations/steps/install-react-native)
+  - [Install missing Android SDK components](https://www.bitrise.io/integrations/steps/install-missing-android-tools)
+  - [Run CocoaPods install](https://www.bitrise.io/integrations/steps/cocoapods-install)
 
 website: https://github.com/bitrise-steplib/steps-expo-detach
 source_code_url: https://github.com/bitrise-steplib/steps-expo-detach
@@ -61,9 +61,9 @@ inputs:
         The Expo CLI ejects your project and creates Xcode and Android Studio projects for your app.
 
         [https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli](https://docs.expo.io/versions/latest/introduction/installation#local-development-tool-expo-cli)
-        
+
         A couple of examples:
-        
+
         * "3.0.0"
         * latest
       is_required: "true"
@@ -111,8 +111,8 @@ inputs:
 
         files, which are required for the native builds.
       value_options:
-      - "yes"
-      - "no"
+        - "yes"
+        - "no"
   - override_react_native_version:
     opts:
       title: React Native version to set in package.json
