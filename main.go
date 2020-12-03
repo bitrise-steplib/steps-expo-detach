@@ -86,7 +86,7 @@ func (e Expo) logout() error {
 
 // Eject command creates Xcode and Android Studio projects for your app.
 func (e Expo) eject() error {
-	args := []string{"eject", "--non-interactive", "--eject-method", string(e.Method)}
+	args := []string{"eject", "--non-interactive"}
 
 	cmd := command.New("expo", args...)
 	cmd.SetStdout(os.Stdout)
