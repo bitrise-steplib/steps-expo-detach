@@ -68,14 +68,18 @@ inputs:
       title: Username for Expo
       summary: Username for Expo
       description: |-
-        Your account's username for `https://expo.io/` . Required if `run_publish` is set to "yes".
+        Your account's username for `https://expo.io/` .
+
+        Required if `run_publish` is set to "yes".
         **NOTE:** You need to use your username and not your e-mail address.
   - password: ""
     opts:
       title: Password for your Expo account
       summary: Password for your Expo account.
       description: |-
-        Your password for `https://expo.io/` . Required if `run_publish` is set to "yes".
+        Your password for `https://expo.io/` .
+
+        Required if `run_publish` is set to "yes".
       is_sensitive: true
   - run_publish: "no"
     opts:
