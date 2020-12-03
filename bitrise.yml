@@ -9,10 +9,6 @@ app:
     - SAMPLE_APP_URL: https://github.com/bitrise-samples/react-native-expo.git
     - BRANCH: "SDK39"
 
-    # Define it in .bitrise.secrets.yml
-    - USER_NAME: $USER_NAME
-    - PASSWORD: $PASSWORD
-
 workflows:
   test:
     before_run:
@@ -23,10 +19,9 @@ workflows:
       - errcheck:
       - go-test:
     after_run:
-      - bare
-      - expo_kit
+      - eject
 
-  bare:
+  eject:
     before_run:
       - _clear_workdir
     steps:
@@ -45,27 +40,6 @@ workflows:
             - project_path: $BITRISE_SOURCE_DIR
             - expo_cli_verson: "latest"
             - override_react_native_version: 0.61.0
-
-  expo_kit:
-    before_run:
-      - _clear_workdir
-    steps:
-      - script:
-          title: Clone sample app
-          inputs:
-            - content: git clone -b expo_sdk $SAMPLE_APP_URL . && cd
-      - npm@0.9.1:
-          title: Install node modules for the expo project
-          inputs:
-            - command: install
-      - path::./:
-          title: Step Test
-          run_if: true
-          inputs:
-            - project_path: $BITRISE_SOURCE_DIR
-            - expo_cli_verson: "latest"
-            - user_name: $USER_NAME
-            - password: $PASSWORD
 
   _clear_workdir:
     envs:
