@@ -14,11 +14,7 @@ description: |-
 
      The default value is `latest` but you can specify an exact version, such as 3.0.0.
 
-  1. If your app uses an Expo SDK, you must provide the username and password for your Expo account! Without it, the Expo SDK imports will stop working.
-
   ### Troubleshooting
-
-  If the Expo CLI used the default `--eject-method` and your SDK imports stop working, check your Expo username and password.
 
   Make sure that the Expo CLI version you use is compatible with your app.
 
@@ -72,27 +68,14 @@ inputs:
       title: Username for Expo
       summary: Username for Expo
       description: |-
-        Your account's username for `https://expo.io/` .
-
-        In case of React Native project __using Expo Kit__ library (any .js file imports expo),  
-        the `user_name` and `password` inputs are __required__.
-
-        If you provide these inputs the step will run: `expo eject --eject-method expoKit`,  
-        otherwise: `expo eject --eject-method bare`.
-
+        Your account's username for `https://expo.io/` . Required if `run_publish` is set to "yes".
         **NOTE:** You need to use your username and not your e-mail address.
   - password: ""
     opts:
       title: Password for your Expo account
       summary: Password for your Expo account.
       description: |-
-        Your password for `https://expo.io/` .
-
-        In case of React Native project __using Expo Kit__ library (any .js file imports expo),  
-        the `user_name` and `password` inputs are __required__.
-
-        If you provide these inputs the step will run: `expo eject --eject-method expoKit`,  
-        otherwise: `expo eject --eject-method bare`.
+        Your password for `https://expo.io/` . Required if `run_publish` is set to "yes".
       is_sensitive: true
   - run_publish: "no"
     opts:
@@ -101,15 +84,7 @@ inputs:
       description: |-
         Should the step run `expo publish` after eject?
 
-        In case of React Native project using Expo Kit library (any .js file imports expo),  
-        `expo publis` command generates the:
-
-        - ./android/app/src/main/assets/shell-app-manifest.json
-        - ./android/app/src/main/assets/shell-app.bundle
-        - ./ios/bitriseexpokit/Supporting/shell-app-manifest.json
-        - ./ios/bitriseexpokit/Supporting/shell-app.bundle
-
-        files, which are required for the native builds.
+        If set to "yes" both `user_name` and `password` are required to be provided.
       value_options:
         - "yes"
         - "no"
