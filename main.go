@@ -76,7 +76,7 @@ func main() {
 	stepconf.Print(cfg)
 
 	if err := validateUserNameAndpassword(cfg.UserName, cfg.Password); err != nil {
-		failf("Input validation error: %s", err)
+		failf("Input validation failed: %s", err)
 	}
 
 	e := Expo{
@@ -90,7 +90,7 @@ func main() {
 	log.Infof("Install Expo CLI version: %s", cfg.ExpoCLIVersion)
 	{
 		if err := e.installExpoCLI(); err != nil {
-			failf("Failed to install the selected (%s) version for Expo CLI, error: %s", cfg.ExpoCLIVersion, err)
+			failf("Failed to install the selected (%s) version for Expo CLI: %s", cfg.ExpoCLIVersion, err)
 		}
 	}
 
@@ -167,7 +167,7 @@ func runPublish(expo Expo, cfg Config) error {
 	log.Infof("Login to Expo")
 	{
 		if err := expo.login(cfg.UserName, cfg.Password); err != nil {
-			return fmt.Errorf("failed to log in to your provided Expo account, error: %s", err)
+			return fmt.Errorf("failed to log in to your provided Expo account: %s", err)
 		}
 	}
 
@@ -178,7 +178,7 @@ func runPublish(expo Expo, cfg Config) error {
 		log.Infof("Logging out from Expo")
 		{
 			if err := expo.logout(); err != nil {
-				log.Warnf("Failed to log out from your Expo account, error: %s", err)
+				log.Warnf("Failed to log out from your Expo account: %s", err)
 			}
 		}
 	}()
