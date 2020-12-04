@@ -28,7 +28,7 @@ func (e Expo) installExpoCLI() error {
 	cmd.SetStdout(os.Stdout)
 	cmd.SetStderr(os.Stderr)
 
-	log.Donef("$ " + cmd.PrintableCommandArgs())
+	log.Donef("$ %s", cmd.PrintableCommandArgs())
 	return cmd.Run()
 }
 
