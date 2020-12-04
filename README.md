@@ -1,6 +1,6 @@
-# [Beta] Expo Eject
+# Expo Eject
 
-Using the The Expo Development CLI to Creates Xcode and Android Studio projects for your app.
+Use the Expo Development CLI to create Xcode and Android Studio projects for your app.
 
 
 ## How to use this Step
