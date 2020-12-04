@@ -88,7 +88,7 @@ inputs:
       description: |-
         Should the step run `expo publish` after eject?
 
-        If set to "yes" both `user_name` and `password` are required to be provided.
+        If set to "yes" both, `user_name` and `password` are required to be provided.
       value_options:
         - "yes"
         - "no"
