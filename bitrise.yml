@@ -30,7 +30,7 @@ workflows:
           inputs:
             - content: git clone $SAMPLE_APP_URL . -b $BRANCH && cd
       - npm@0.9.1:
-          title: Install node modules for the expo project
+          title: Install node modules for the Expo project
           inputs:
             - command: install
       - path::./:
@@ -55,8 +55,8 @@ workflows:
       - change-workdir:
           title: Switch working dir to test / _tmp dir
           description: |-
-            To prevent step testing issues, like referencing relative
-            files with just './some-file' in the step's code, which would
+            To prevent Step testing issues, like referencing relative
+            files with just './some-file' in the Step's code, which would
             work for testing the step from this directory directly
             but would break if the step is included in another `bitrise.yml`.
           run_if: true

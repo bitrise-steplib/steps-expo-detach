@@ -53,7 +53,7 @@ func (e Expo) logout() error {
 	cmd.SetStdout(os.Stdout)
 	cmd.SetStderr(os.Stderr)
 
-	log.Printf("$ " + cmd.PrintableCommandArgs())
+	log.Donef("$ %s", cmd.PrintableCommandArgs())
 	return cmd.Run()
 }
 
@@ -68,7 +68,7 @@ func (e Expo) eject() error {
 		cmd.SetDir(e.Workdir)
 	}
 
-	log.Donef("$ " + cmd.PrintableCommandArgs())
+	log.Donef("$ %s", cmd.PrintableCommandArgs())
 	return cmd.Run()
 }
 
@@ -82,6 +82,6 @@ func (e Expo) publish() error {
 		cmd.SetDir(e.Workdir)
 	}
 
-	log.Donef("$ " + cmd.PrintableCommandArgs())
+	log.Donef("$ %s", cmd.PrintableCommandArgs())
 	return cmd.Run()
 }

@@ -109,7 +109,9 @@ func main() {
 	log.Donef("Successfully ejected your project")
 
 	if cfg.RunPublish == "yes" {
-		runPublish(e, cfg)
+		if err := runPublish(e, cfg); err != nil {
+			failf("Failed to publish project: %s", err)
+		}
 	}
 
 	if cfg.OverrideReactNativeVersion != "" {
@@ -158,14 +160,14 @@ func main() {
 	}
 }
 
-func runPublish(expo Expo, cfg Config) {
+func runPublish(expo Expo, cfg Config) error {
 	//
 	// Logging in the user to the Expo account
 	fmt.Println()
 	log.Infof("Login to Expo")
 	{
 		if err := expo.login(cfg.UserName, cfg.Password); err != nil {
-			failf("Failed to log in to your provided Expo account, error: %s", err)
+			return fmt.Errorf("failed to log in to your provided Expo account, error: %s", err)
 		}
 	}
 
@@ -186,6 +188,8 @@ func runPublish(expo Expo, cfg Config) {
 
 	// Running publish
 	if err := expo.publish(); err != nil {
-		failf("Failed to publish project: %s", err)
+		return err
 	}
+
+	return nil
 }
