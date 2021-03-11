@@ -70,25 +70,22 @@ inputs:
       description: |-
         Your account's username for `https://expo.io/` .
 
-        Required if `run_publish` is set to "yes".
         **NOTE:** You need to use your username and not your e-mail address.
+      is_required: "true"
   - password: ""
     opts:
       title: Password for your Expo account
       summary: Password for your Expo account.
       description: |-
         Your password for `https://expo.io/` .
-
-        Required if `run_publish` is set to "yes".
       is_sensitive: true
+      is_required: "true"
   - run_publish: "no"
     opts:
       title: Run expo publish after eject?
       summary: Should the step run `expo publish` after eject?
       description: |-
         Should the step run `expo publish` after eject?
-
-        If set to "yes" both, `user_name` and `password` are required to be provided.
       value_options:
         - "yes"
         - "no"
