@@ -9,6 +9,9 @@ app:
     - SAMPLE_APP_URL: https://github.com/bitrise-samples/react-native-expo.git
     - BRANCH: "SDK39"
 
+    - ANDROIDMANIFEST_PATH: "$ORIGIN_SOURCE_DIR/_tmp/android/app/src/main/AndroidManifest.xml"
+    - EXPO_UPDATE_URL_KEY: "expo.modules.updates.EXPO_UPDATE_URL"
+
 workflows:
   test:
     before_run:
@@ -19,11 +22,13 @@ workflows:
       - errcheck:
       - go-test:
     after_run:
-      - eject
+      - test-eject
 
-  eject:
+  test-eject:
     before_run:
       - _clear_workdir
+    after_run:
+      - validate-output
     steps:
       - script:
           title: Clone sample app
@@ -37,12 +42,27 @@ workflows:
           title: Step Test
           run_if: true
           inputs:
+            - user_name: $USER_NAME
+            - password: $PASSWORD
             - project_path: $BITRISE_SOURCE_DIR
             - expo_cli_verson: "latest"
             - override_react_native_version: 0.61.0
 
+  validate-output:
+    title: Validate output
+    steps:
+      - script:
+          title: Validate that expo.modules.updates.EXPO_UPDATE_URL is present in AndroidManifest.xml
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+                if ! grep -q $EXPO_UPDATE_URL_KEY $ANDROIDMANIFEST_PATH; then
+                  echo "$EXPO_UPDATE_URL_KEY is not found in $ANDROIDMANIFEST_PATH"
+                  exit 1
+                fi
+
   _clear_workdir:
-    envs:
     steps:
       - script:
           inputs:
