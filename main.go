@@ -62,12 +62,7 @@ func validateUserNameAndpassword(userName string, password stepconf.Secret) erro
 }
 
 func failf(format string, v ...interface{}) {
-	failfDefered(func() {}, format, v)
-}
-
-func failfDefered(defered func(), format string, v ...interface{}) {
 	log.Errorf(format, v...)
-	defered()
 	os.Exit(1)
 }
 
