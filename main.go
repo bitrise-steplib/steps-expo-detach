@@ -157,7 +157,7 @@ func detach(e Expo, cfg Config) error {
 		packages["dependencies"] = deps
 
 		if err := savePackageJSON(packages, packageJSONPth); err != nil {
-			failfDefered(func() { logout(e) }, err.Error())
+			return err
 		}
 
 		//
