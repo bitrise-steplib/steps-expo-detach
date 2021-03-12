@@ -10,6 +10,8 @@ description: |-
 
   1. Set the **Working directory input field** to the value of your project directory. By default, you do not have to change this.
 
+  1. Provide your Expo username and password if you are using an Expo module that requires loging in before ejecting your app. Please refer to the [Expo documentation](https://docs.expo.io/) for more information.
+
   1. Specify the Expo CLI version.
 
      The default value is `latest` but you can specify an exact version, such as 3.0.0.
@@ -68,7 +70,7 @@ inputs:
       title: Username for Expo
       summary: Username for Expo
       description: |-
-        Your account's username for `https://expo.io/` .
+        Your account's username for `https://expo.io/` . If provided `expo login` will be run before eject.
 
         Required if `run_publish` is set to "yes".
         **NOTE:** You need to use your username and not your e-mail address.
@@ -77,7 +79,7 @@ inputs:
       title: Password for your Expo account
       summary: Password for your Expo account.
       description: |-
-        Your password for `https://expo.io/` .
+        Your password for `https://expo.io/` . If provided `expo login` will be run before eject.
 
         Required if `run_publish` is set to "yes".
       is_sensitive: true

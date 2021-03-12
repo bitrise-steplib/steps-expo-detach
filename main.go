@@ -79,7 +79,7 @@ func main() {
 		failf("Input validation failed: %s", err)
 	}
 
-	e := Expo{
+	expo := Expo{
 		Version: cfg.ExpoCLIVersion,
 		Workdir: cfg.Workdir,
 	}
@@ -89,20 +89,42 @@ func main() {
 	fmt.Println()
 	log.Infof("Install Expo CLI version: %s", cfg.ExpoCLIVersion)
 	{
-		if err := e.installExpoCLI(); err != nil {
+		if err := expo.installExpoCLI(); err != nil {
 			failf("Failed to install the selected (%s) version for Expo CLI: %s", cfg.ExpoCLIVersion, err)
 		}
 	}
 
+	//
+	// Logging in the user to the Expo account
+	loggedIn := false
+	if cfg.UserName != "" && cfg.Password != "" {
+		if err := login(expo, cfg); err != nil {
+			failf("Failed to log in to your provided Expo account: %s", err)
+		}
+		loggedIn = true
+	}
+
+	if err := detach(expo, cfg); err != nil {
+		if loggedIn {
+			logout(expo)
+		}
+		failf(err.Error())
+	}
+
+	if loggedIn {
+		logout(expo)
+	}
+}
+
+func detach(e Expo, cfg Config) error {
 	//
 	// Eject project via the Expo CLI
 	fmt.Println()
 	log.Infof("Eject project")
 	{
 		if err := e.eject(); err != nil {
-			failf("Failed to eject project: %s", err)
+			return fmt.Errorf("Failed to eject project: %s", err)
 		}
-
 	}
 
 	fmt.Println()
@@ -110,7 +132,7 @@ func main() {
 
 	if cfg.RunPublish == "yes" {
 		if err := runPublish(e, cfg); err != nil {
-			failf("Failed to publish project: %s", err)
+			return fmt.Errorf("Failed to publish project: %s", err)
 		}
 	}
 
@@ -123,19 +145,19 @@ func main() {
 		packageJSONPth := filepath.Join(cfg.Workdir, "package.json")
 		packages, err := parsePackageJSON(packageJSONPth)
 		if err != nil {
-			failf(err.Error())
+			return err
 		}
 
 		deps, err := packages.Object("dependencies")
 		if err != nil {
-			failf("Failed to parse dependencies from package.json file: %s", err)
+			return fmt.Errorf("Failed to parse dependencies from package.json file: %s", err)
 		}
 
 		deps["react-native"] = cfg.OverrideReactNativeVersion
 		packages["dependencies"] = deps
 
 		if err := savePackageJSON(packages, packageJSONPth); err != nil {
-			failf(err.Error())
+			return err
 		}
 
 		//
@@ -153,36 +175,36 @@ func main() {
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 		if err != nil {
 			if errorutil.IsExitStatusError(err) {
-				failf("%s failed: %s", cmd.PrintableCommandArgs(), out)
+				return fmt.Errorf("%s failed: %s", cmd.PrintableCommandArgs(), out)
 			}
-			failf("%s failed: %s", cmd.PrintableCommandArgs(), err)
+			return fmt.Errorf("%s failed: %s", cmd.PrintableCommandArgs(), err)
+		}
+	}
+
+	return nil
+}
+
+func login(expo Expo, cfg Config) error {
+	fmt.Println()
+	log.Infof("Login to Expo")
+	{
+		return expo.login(cfg.UserName, cfg.Password)
+	}
+}
+
+func logout(expo Expo) {
+	//
+	// Logging out the user from the Expo account (even if it fails)
+	fmt.Println()
+	log.Infof("Logging out from Expo")
+	{
+		if err := expo.logout(); err != nil {
+			log.Warnf("Failed to log out from your Expo account: %s", err)
 		}
 	}
 }
 
 func runPublish(expo Expo, cfg Config) error {
-	//
-	// Logging in the user to the Expo account
-	fmt.Println()
-	log.Infof("Login to Expo")
-	{
-		if err := expo.login(cfg.UserName, cfg.Password); err != nil {
-			return fmt.Errorf("failed to log in to your provided Expo account: %s", err)
-		}
-	}
-
-	//
-	// Logging out the user from the Expo account (even if it fails)
-	defer func() {
-		fmt.Println()
-		log.Infof("Logging out from Expo")
-		{
-			if err := expo.logout(); err != nil {
-				log.Warnf("Failed to log out from your Expo account: %s", err)
-			}
-		}
-	}()
-
 	fmt.Println()
 	log.Infof("Running expo publish")
 
